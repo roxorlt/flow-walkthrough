@@ -9,6 +9,11 @@
   python3 build.py walkmap.json -o out.html
   python3 build.py walkmap.json --check          # 仅校验，输出报告 JSON
 """
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
 import argparse
 import json
 import os

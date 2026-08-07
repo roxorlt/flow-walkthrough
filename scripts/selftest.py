@@ -5,6 +5,11 @@
 用法： python3 scripts/selftest.py
 退出码： 0 = 全部通过；1 = 存在失败项。
 """
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
 import json
 import os
 import subprocess
@@ -23,7 +28,7 @@ def check(name, ok, detail=""):
 
 
 def run(args):
-    return subprocess.run([sys.executable, BUILD] + args, capture_output=True, text=True)
+    return subprocess.run([sys.executable, BUILD] + args, capture_output=True, text=True, encoding="utf-8")
 
 
 def main():
