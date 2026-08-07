@@ -1,0 +1,33 @@
+{
+  "spec": "walkmap/1",
+  "title": "会员开通流程走查",
+  "svg": "member-onboarding.svg",
+  "default_node": "C",
+  "pages": [
+    { "id": "p-login",    "frame": "phone", "file": "pages/login.html" },
+    { "id": "p-home",     "frame": "phone", "file": "pages/home-locked.html" },
+    { "id": "p-external", "frame": "phone", "file": "pages/external.html" },
+    { "id": "p-form",     "frame": "phone", "file": "pages/form.html" },
+    { "id": "p-review",   "frame": "phone", "file": "pages/review.html" },
+    { "id": "p-rejected", "frame": "phone", "file": "pages/rejected.html" },
+    { "id": "p-active",   "frame": "phone", "file": "pages/active.html" },
+    { "id": "p-admin",    "frame": "wide",  "file": "pages/admin.html" }
+  ],
+  "nodes": {
+    "A":  { "page": "p-home",     "title": "进入会员中心", "anno": [["可见性", "入口对所有用户可见，未登录用户引导登录"]] },
+    "B1": { "page": "p-login",    "title": "登录页", "anno": [["承接", "统一登录页，登录成功后回到会员中心"]] },
+    "C":  { "page": "p-home",     "title": "会员入口 · 未开通", "anno": [["内容", "权益说明 + 开通按钮；点击后判断实名状态"]] },
+    "D1": { "page": "p-external", "title": "实名认证流程", "anno": [["归属", "外部系统承接，完成认证后直接进入申请表单"]] },
+    "E":  { "page": "p-form",     "title": "开通申请表单页", "anno": [["提交", "提交成功后入口变更为审核中"]] },
+    "F":  { "page": "p-review",   "title": "会员入口 · 审核中", "anno": [["状态", "等待人工审核结果"]] },
+    "G":  { "page": "p-admin",    "title": "人工审核后台", "anno": [["功能", "申请列表 + 通过/不通过操作；不通过需填写理由"]] },
+    "H1": { "page": "p-rejected", "title": "会员入口 · 审核不通过", "anno": [["展示", "后台填写的不通过理由 + 重新申请按钮"]] },
+    "I1": { "page": "p-active",   "title": "会员入口 · 待绑定支付方式", "anno": [["引导", "点击去绑定进入支付平台页面"]] },
+    "I2": { "page": "p-external", "title": "支付平台 · 绑定页", "anno": [["归属", "外部系统承接"]] },
+    "J1": { "page": "p-active",   "title": "会员入口 · 需更新支付方式", "anno": [["触发", "支付方式失效（如卡片过期）时提示更新"]] },
+    "J2": { "page": "p-external", "title": "支付平台 · 更新页", "anno": [["归属", "外部系统承接"]] },
+    "K":  { "page": "p-active",   "title": "会员入口 · 已开通", "anno": [["状态", "会员有效，可查看权益"]] },
+    "L":  { "page": "p-external", "title": "会员权益页", "anno": [["归属", "外部系统承接"]] },
+    "M":  { "page": "p-active",   "title": "存量会员迁移", "anno": [["规则", "运营名单批量初始化，直接进入有效链路"]] }
+  }
+}

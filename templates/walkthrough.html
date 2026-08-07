@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>__TITLE__</title>
+<style>
+:root {
+  --wt-bg: #f7f7f7; --wt-white: #ffffff;
+  --wt-border: #c0c0c0; --wt-border-light: #e0e0e0;
+  --wt-text: #333333; --wt-dim: #888888; --wt-light: #aaaaaa;
+  --wt-fill: #e8e8e8; --wt-accent: #555555;
+__CSS_VARS__
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; background: var(--wt-bg); color: var(--wt-text);
+  font-family: -apple-system, PingFang SC, Segoe UI, Microsoft YaHei, sans-serif; }
+.layout { display: flex; min-height: 100vh; gap: 18px; padding: 20px; justify-content: center; align-items: flex-start; }
+
+/* 左：流程画布 */
+.flow-panel { width: 520px; flex-shrink: 0; position: sticky; top: 20px;
+  height: calc(100vh - 40px); display: flex; flex-direction: column; }
+.fp-title { font-size: 16px; font-weight: 700; border-bottom: 2px solid var(--wt-text);
+  padding-bottom: 6px; margin-bottom: 8px; }
+.fp-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 11px; color: var(--wt-dim); }
+.zb { padding: 2px 10px; border: 1px solid var(--wt-border); border-radius: 4px; cursor: pointer;
+  background: var(--wt-white); user-select: none; color: var(--wt-text); }
+.zv { min-width: 40px; text-align: center; }
+.flow-svg { flex: 1; min-height: 0; overflow: hidden; border: 1px solid var(--wt-border-light);
+  border-radius: 6px; background: var(--wt-white); cursor: grab; touch-action: none; user-select: none; }
+.flow-svg:active { cursor: grabbing; }
+.flow-canvas-inner { transform-origin: 0 0; will-change: transform; }
+.flow-svg svg { width: 100%; height: auto; display: block; }
+.flow-svg g[data-node] { cursor: pointer; }
+.flow-svg g[data-node]:hover rect, .flow-svg g[data-node]:hover polygon { stroke-width: 2.5px; }
+
+/* 中：设备框 */
+.stage { flex-shrink: 0; position: sticky; top: 20px; }
+.frame-phone { width: 375px; min-height: 680px; max-height: calc(100vh - 40px); overflow-y: auto;
+  background: var(--wt-white); border: 1px solid var(--wt-border); border-radius: 12px; }
+.frame-phone::-webkit-scrollbar { width: 0; }
+.frame-wide { width: 690px; background: var(--wt-white); border: 1px solid var(--wt-border); border-radius: 8px; overflow: hidden; }
+.hidden { display: none !important; }
+.page { display: none; padding-bottom: 24px; background: var(--wt-white); }
+.page.active { display: block; }
+
+/* 右：标注 */
+.anno-panel { width: 300px; flex-shrink: 0; position: sticky; top: 20px;
+  max-height: calc(100vh - 40px); overflow-y: auto; }
+.anno-card { padding: 12px; border: 1px solid var(--wt-border-light); border-radius: 4px;
+  background: var(--wt-white); margin-bottom: 14px; }
+.anno-card-title { font-size: 11px; font-weight: 600; color: var(--wt-dim); letter-spacing: 1px; margin-bottom: 10px; }
+#anno-node-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+.anno-item { font-size: 12px; color: var(--wt-dim); line-height: 1.65; margin-bottom: 10px; }
+.anno-item:last-child { margin-bottom: 0; }
+.anno-item b { display: block; color: var(--wt-text); margin-bottom: 2px; }
+
+/* 页面片段可用的基础组件样式 */
+.wt-titlebar { display: flex; align-items: center; height: 44px; padding: 0 12px;
+  border-bottom: 1px solid var(--wt-border); font-size: 15px; font-weight: 600; justify-content: center; }
+.wt-body { padding: 16px; }
+.wt-input { width: 100%; padding: 9px 10px; border: 1px solid var(--wt-border); border-radius: 5px;
+  font-size: 13px; background: var(--wt-white); margin-bottom: 12px; }
+.wt-btn { display: block; width: 100%; padding: 9px 0; border: none; border-radius: 18px;
+  font-size: 13px; text-align: center; cursor: pointer; background: var(--wt-accent); color: var(--wt-white); }
+.wt-card { margin: 12px; padding: 12px; border: 1px solid var(--wt-border); border-radius: 6px; background: var(--wt-white); }
+.wt-badge { display: inline-block; padding: 2px 8px; border: 1px solid var(--wt-border); border-radius: 3px;
+  font-size: 11px; color: var(--wt-dim); background: var(--wt-fill); }
+.wt-dimtext { font-size: 12px; color: var(--wt-dim); line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="flow-panel">
+  <div class="fp-title">__TITLE__</div>
+  <div class="fp-bar">
+    <span class="zb" onclick="setZoom(-1)">&#65293;</span>
+    <span class="zv" id="zv">100%</span>
+    <span class="zb" onclick="setZoom(1)">&#65291;</span>
+    <span class="zb" onclick="setZoom(0)">适宽</span>
+    <span style="margin-left:auto;">点击节点联动右侧页面</span>
+  </div>
+  <div class="flow-svg" id="flow-svg"><div class="flow-canvas-inner" id="flow-canvas-inner">__SVG__</div></div>
+</aside>
+
+<div class="stage">
+  <div class="frame-phone" id="frame-phone">
+__PAGES_PHONE__
+  </div>
+  <div class="frame-wide hidden" id="frame-wide">
+__PAGES_WIDE__
+  </div>
+</div>
+
+<aside class="anno-panel">
+  <div class="anno-card">
+    <div class="anno-card-title">当前节点</div>
+    <div id="anno-node-title"></div>
+    <div id="anno-body"></div>
+  </div>
+  <div class="anno-card">
+    <div class="anno-card-title">使用说明</div>
+    <div class="anno-item">左侧流程图节点可点击，右侧同步切换到该节点对应的页面；画布可拖拽平移、按钮缩放，「适宽」复位视图。</div>
+    <div class="anno-item">支持 #node=节点id 直达。</div>
+  </div>
+</aside>
+
+</div>
+
+<script>
+var NODES = __NODES_JSON__;
+var PAGE_FRAME = __PAGE_FRAME_JSON__;
+var currentNode = null;
+
+function setViewByNode(nodeId) {
+  var n = NODES[nodeId];
+  if (!n) return;
+  currentNode = nodeId;
+  var frame = PAGE_FRAME[n.page] || "phone";
+  document.getElementById("frame-phone").classList.toggle("hidden", frame !== "phone");
+  document.getElementById("frame-wide").classList.toggle("hidden", frame !== "wide");
+  document.querySelectorAll(".page").forEach(function (p) {
+    p.classList.toggle("active", p.id === n.page);
+  });
+  var ring = document.getElementById("sel-ring");
+  var target = document.querySelector('.flow-svg g[data-node="' + nodeId + '"]');
+  if (ring) {
+    if (target) {
+      var bb = target.getBBox();
+      ring.setAttribute("x", bb.x - 7); ring.setAttribute("y", bb.y - 7);
+      ring.setAttribute("width", bb.width + 14); ring.setAttribute("height", bb.height + 14);
+      ring.setAttribute("visibility", "visible");
+    } else {
+      ring.setAttribute("visibility", "hidden");
+    }
+  }
+  document.getElementById("anno-node-title").textContent = n.title || nodeId;
+  var body = "";
+  (n.anno || []).forEach(function (pair) {
+    body += '<div class="anno-item"><b>' + pair[0] + "</b>" + pair[1] + "</div>";
+  });
+  document.getElementById("anno-body").innerHTML = body;
+  var ph = document.getElementById("frame-phone");
+  if (ph.scrollTo) ph.scrollTo(0, 0);
+}
+window.goNode = setViewByNode;
+
+document.querySelectorAll('.flow-svg g[data-node]').forEach(function (g) {
+  g.addEventListener("click", function () { setViewByNode(g.getAttribute("data-node")); });
+});
+
+var zoomPct = 100, panX = 0, panY = 0;
+function applyPan() {
+  document.getElementById("flow-canvas-inner").style.transform = "translate(" + panX + "px," + panY + "px)";
+}
+function setZoom(dir) {
+  zoomPct = dir === 0 ? 100 : Math.min(300, Math.max(100, zoomPct + dir * 40));
+  if (dir === 0) { panX = 0; panY = 0; applyPan(); }
+  var svg = document.querySelector("#flow-svg svg");
+  if (svg) svg.style.width = zoomPct + "%";
+  document.getElementById("zv").textContent = zoomPct + "%";
+}
+(function () {
+  var fs = document.getElementById("flow-svg");
+  var dragging = false, movedFlag = false, sx = 0, sy = 0, ox = 0, oy = 0;
+  fs.addEventListener("pointerdown", function (e) {
+    dragging = true; movedFlag = false;
+    sx = e.clientX; sy = e.clientY; ox = panX; oy = panY;
+  });
+  window.addEventListener("pointermove", function (e) {
+    if (!dragging) return;
+    var dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) movedFlag = true;
+    panX = ox + dx; panY = oy + dy; applyPan();
+  });
+  window.addEventListener("pointerup", function () { dragging = false; });
+  fs.addEventListener("click", function (e) {
+    if (movedFlag) { e.stopPropagation(); e.preventDefault(); movedFlag = false; }
+  }, true);
+})();
+
+var initNode = (location.hash.match(/node=([\w-]+)/) || [])[1];
+setViewByNode(NODES[initNode] ? initNode : "__DEFAULT__");
+</script>
+</body>
+</html>
