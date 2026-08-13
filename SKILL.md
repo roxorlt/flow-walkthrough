@@ -41,4 +41,4 @@ description: 三栏流程联动原型——左侧流程图节点可点击，右�
 
 ## 自检
 
-安装后运行 `python3 scripts/selftest.py`（12 项断言，含 golden 走查构建与坏映射报错检查），全部 PASS 才算可用。
+安装后运行 `python3 scripts/selftest.py`（13 项断言，含 golden 走查构建、画布全屏与坏映射报错检查），全部 PASS 才算可用。

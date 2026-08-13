@@ -47,6 +47,7 @@ def main():
         check("单文件产物含嵌入 SVG", 'data-flowspec="1"' in html)
         check("联动脚本存在", "setViewByNode" in html and "goNode" in html)
         check("画布拖拽/缩放存在", "pointerdown" in html and "setZoom" in html)
+        check("画布全屏切换存在", "toggleFs" in html and "退出全屏" in html)
         check("选中框定位逻辑存在", "sel-ring" in html and "getBBox" in html)
         check("全部页面均已内联", all(('id="p-%s"' % x) in html for x in
                                     ["login", "home", "external", "form", "review", "rejected", "active", "admin"]))
